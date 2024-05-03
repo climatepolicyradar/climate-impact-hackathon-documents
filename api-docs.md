@@ -1,0 +1,56 @@
+# Climate Policy Radar Search API Specification
+
+---
+
+# **VERSION HISTORY**
+
+<table><tbody><tr><td>1.0</td><td>Initial version based on&nbsp;<a href="https://github.com/climatepolicyradar/navigator-backend/releases/tag/v1.3.15-beta"><u>v1.3.15-beta.</u></a></td><td>3/10/2023</td><td>Peter Hooper</td></tr><tr><td>1.1</td><td>Based off of generated staging docs</td><td>2/5/2024</td><td>Fred O’Loughlin</td></tr></tbody></table>
+
+# **Description**
+
+This documentation is intended to explain the use of our search API for external developers and integrators. The API is a typical REST API where the requests and responses are encoded as application/json.
+
+We ask that users be respectful of its use and remind users that data is available to download on request.
+
+Please be aware that this documentation is still under development.
+
+# **SEARCH ENDPOINT**
+
+<table><tbody><tr><td><p style="text-align:center;"><strong>POST</strong></p></td><td>/api/v1/searches</td></tr></tbody></table>
+
+Search for documents matching the search criteria and filters.
+
+There is no authentication required for using this interface. We ask that users be respectful of its use and remind users that data is available to download on request.
+
+The search endpoint behaves in two distinct ways:
+
+- "Browse" mode is when an empty query_string is provided. This is intended for document level search using filters. Individual passages are not returned.
+- "Search" mode is when a query_string is present. This matches against individual document passages.
+
+The request and response object is otherwise identical for both.
+
+The results can be paginated via a combination of limit, offset and continuation tokens. The limit/offset slices the results after they have been retrieved from the search database. The continuation token can be used to get the next set of results from the search database. See the request schema for more details.
+
+## **Request Payload**
+
+The payload is a JSON object representing the search to be performed. The schema for the request body is as follows:
+
+<table><tbody><tr><td rowspan="2"><h2><strong>SearchRequestBody</strong></h2><p>The request body expected by the search API endpoint.</p><p><strong>query_string</strong> string</p><p>A string representation of the search to be performed. For example: 'Adaptation strategy'"</p><p><strong>exact_match</strong> boolean</p><p>Indicate if the query_string should be treated as an exact match when the search is performed.</p><p>Default: false</p><p><strong>max_passages_per_doc</strong> integer</p><p>The maximum number of matched passages to be returned for a single document.</p><p>Default: 10</p><p><strong>family_ids</strong> array(string | null)</p><p>Optionally limit a search to a specific set of family ids.</p><p><strong>document_ids</strong> array(string | null)</p><p>Optionally limit a search to a specific set of document ids.</p><p><strong>year_range</strong> array[(integer | null), (integer | null)]</p><p>The years to search between. Containing exactly two values, which can be null or an integer representing the years to search between. These are inclusive and can be null. Example: [null, 2010] will return all documents return in or before 2010</p><p><strong>sort_field</strong> string</p><p>The field to sort by can be chosen from date or title</p><p><strong>sort_order</strong> string</p><p>The order of the results according to the sort_field, can be chosen from ascending (use “asc”) or descending (use “desc”)</p><p>Default: "desc"</p><p><strong>continuation_tokens</strong> array(string | null)</p><p>Use to return the next page of results from a specific search, the next token can be found on the response object. It's also possible to get the next page of passages by including the family level continuation token first in the array followed by the passage level one</p><p><strong>keyword_filters</strong> (object | null)</p><p>This is an object containing a map of fields and their values to filter on. The allowed fields for the keys are: “sources", "countries", "regions", "categories", "languages"</p><p><strong>limit</strong> integer</p><p>Refers to the maximum number of results to return from the query result. To get the whole query set this value to 100</p><p>Default: 100</p><p><strong>offset</strong> integer</p><p>Where to start from in the number of query result that was retrieved from the search database.</p><p>Default: 0</p></td></tr><tr></tr></tbody></table>
+
+## **Response Payload**
+
+The response returns a list of families and includes their associated documents along with their passage matches. The payload has the following scheme:
+
+<table><tbody><tr><td rowspan="2"><p><strong>SearchResponse</strong></p><p>The response body produced by the search API endpoint.</p><p><strong>hits</strong>&nbsp;integer</p><p>The number of documents retrieved within the current search query</p><p><strong>total_family_hits</strong>&nbsp;integer</p><p>The total hits available in the search database</p><p><strong>query_time_ms</strong>&nbsp;integer</p><p>Time for the query to run in the search database</p><p><strong>total_time_ms</strong>&nbsp;integer</p><p>query_time + extra processing</p><p><strong>continuation_token</strong>&nbsp;(string | null)</p><p>A token that can be sent in a followup request to the search endpoint in order to get the next page from the search database for this specific query.<br><br>&nbsp;</p><p><strong>this_continuation_token</strong>&nbsp;(string | null)</p><p>Relevant when using passage level continuations on a search page</p><p><strong>prev_continuation_token</strong>&nbsp;(string | null)</p><p>A token that can be sent in a followup request to the search endpoint in order to get the previous page from the search database for this specific query.</p><p><strong>Families</strong>&nbsp;array[Families]</p><p>See Below.</p></td></tr><tr></tr></tbody></table>
+
+<table><tbody><tr><td rowspan="2"><p><strong>Families</strong></p><p>Search result families</p><p><strong>Items</strong>&nbsp;object</p><p>The object that is returned in the response.</p><p><strong>family_slug</strong>&nbsp;string<br>The slug that forms part of the URL to navigate to the family.<br>Example, with a slug of climate-change-adaptation-strategy_1882, a URL can be created to this family of documents as: https://app.climatepolicyradar.org/document/climate-change-adaptation-strategy_1882</p><p><strong>family_name</strong>&nbsp;string</p><p>The name of the family.</p><p><strong>family_description</strong>&nbsp;string</p><p>The description of the family.</p><p><strong>family_category</strong>&nbsp;string</p><p>The family category</p><p><strong>family_date</strong>&nbsp;string</p><p>The date the family of documents was published, this is from the corresponding Passed/Approved event for this family.</p><p><strong>family_last_updated_date</strong>&nbsp;string</p><p>The date the family of documents was published, this is from the most recent event of this family of documents.</p><p><strong>family_source</strong>&nbsp;string</p><p>The source, currently organisation name. Either “CCLW” or “UNFCCC”</p><p><strong>family_geography</strong>&nbsp;string</p><p>The geographical location of the family in ISO 3166-1 alpha-3</p><p><strong>family_metadata</strong>&nbsp;object</p><p>An object if metadata for the family, the schema will change given the family_source</p><p><strong>family_title_match</strong>&nbsp;boolean</p><p>True if the search is matched within the family's title</p><p><strong>family_description_match</strong>&nbsp;boolean</p><p>True if the search is matched within the family's description.</p><p><strong>total_passage_hits</strong>&nbsp;integer</p><p>Full number of passage matches in the search database for this family</p><p><strong>family_documents</strong>&nbsp;array[FamilyDocument]</p><p>See below</p><p><strong>continuation_token</strong>&nbsp;(string | null)</p><p>Passage level continuation token. Can be used in conjunction with the family level&nbsp;this continuation_token to get the next page of passages for this specific family</p><p><strong>prev_continuation_token</strong>&nbsp;(string | null)</p><p>Passage level continuation token. Can be used in conjunction with the family level&nbsp;this continuation_token to get the previous page of passages for this specific family</p></td></tr><tr></tr></tbody></table>
+
+<table><tbody><tr><td rowspan="3"><p><strong>FamilyDocument</strong><br>Document in a search response.</p><p><strong>document_title</strong>&nbsp;string</p><p>The title of the document.</p><p><strong>document_slug</strong>&nbsp;string</p><p>The slug that forms part of the URL to navigate to the particular document. Example, with a slug of `national-climate-change-adaptation-strategy_06f8, a URL can be created to the document as: https://app.climatepolicyradar.org/documents/national-climate-change-adaptation-strategy_06f8</p><p><strong>document_type</strong>&nbsp;string</p><p>The type of document, for example: “Strategy”</p><p><strong>document_source_url</strong>&nbsp;(string | null)</p><p>The source url of the external site that was used to ingest into the system.</p><p><strong>document_url</strong>&nbsp;(string | null)</p><p>The CDN url of where the document can be found within our system.</p><p><strong>document_content_type</strong>&nbsp;(string | null)</p><p>The content_type of the document found at the&nbsp;document_url. For example: “application/pdf” or “text/html”.</p><p><strong>document_passage_matches</strong>&nbsp;array[DocumentPassageMatches]</p><p>This is a list of passages that match the search criteria within this document.<br>The length of which is affected by max_passages_per_doc in the request.</p><p>See below</p></td></tr><tr></tr><tr></tr></tbody></table>
+
+<table><tbody><tr><td rowspan="3"><p><strong>DocumentPassageMatches</strong><br>A Document passage match returned by the search API endpoint.</p><p><strong>text</strong>&nbsp;string</p><p><strong>text_block_id</strong>&nbsp;string</p><p><strong>text_block_page</strong>(integer | null)</p><p><strong>text_block_coords&nbsp;</strong>(array[array[[number, number], any]] | null)<br><br>&nbsp;</p></td></tr><tr></tr><tr></tr></tbody></table>
+
+## **Examples**
+
+The following examples are of using curl to call the API endpoint to retrieve results via the command line.
+
+<table><tbody><tr><td><p>#&nbsp;Perform a simple search for matching passages</p><p>curl -X POST "https://app.climatepolicyradar.org/api/v1/searches" &nbsp; -H "accept: application/json" &nbsp; -H "Content-Type: application/json" &nbsp;-d '{"query_string": "Energy Prices"}'</p><p>#&nbsp;Perform a simple search for matching passages</p><p>curl -X POST "https://app.climatepolicyradar.org/api/v1/searches" \<br>-H "accept: application/json" \<br>-H "Content-Type: application/json" \<br>-d '{"query_string": "", "year_range": [2000, null], "sort_field": "date", "sort_order": "desc"}'<br>&nbsp;</p><p>#&nbsp;Filtering and using exact match</p><p>curl -X POST "https://app.climatepolicyradar.org/api/v1/searches" \<br>-H "accept: application/json" \<br>-H "Content-Type: application/json" \<br>-d '{ "query_string": "Just transition", "exact_match": true, "keyword_filters": { "sources": ["CCLW"], "categories": ["Legislative"] } }'</p><p><br><br>&nbsp;</p></td></tr></tbody></table>
