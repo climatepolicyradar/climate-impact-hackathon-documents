@@ -4,8 +4,6 @@ You can download the full text extracted from our law and policy dataset [HERE](
 
 The dataset is in parquet files which can be loaded using pandas or whatever tools you're familiar with. We recommend loading all of the dataset into one dataframe and then filtering to start with.
 
-\*\*Please don't share this dataset with people beyond your immediate collaborators on this work\*\*
-
 If you would like to deploy your tool using this dataset after the hackathon, we will be very happy to support that! Come chat to us :)
 
 Some key columns in the data:

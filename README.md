@@ -2,7 +2,7 @@
 
 Welcome to the Climate Policy Radar (CPR) Hackathon Challenge! This repository contains essential documentation and resources to help you create innovative solutions that make climate law and policy information more accessible and actionable.
 
-Please note, these documents are work in progress! While we have tried to be complete and correct, there may be mistakes or omissions. We would really appreciate letting us know so that we can fix them!
+Please note, these documents are work in progress. While we have tried to be complete and correct, there may be mistakes or omissions. Please let us know via issues on this repository.
 
 ## Table of Contents
 
@@ -44,4 +44,4 @@ To help you get started quickly, we've prepared a brief technical tutorial in th
 
 ---
 
-We're excited to see the innovative solutions you'll create during this hackathon! If you have any questions or need further assistance, don't hesitate to reach out to the event organizers. Happy hacking!
+We're excited to see the innovative solutions you'll create during this hackathon. If you have any questions or need further assistance, don't hesitate to reach out to the event organizers. Happy hacking!
